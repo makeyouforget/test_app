@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      max-width: 720px; margin: 0 auto; padding: 2rem 1rem; line-height: 1.5;
+    }
+    h1 { margin-bottom: 0.25rem; }
+    .muted { opacity: 0.6; font-size: 0.85rem; }
+    form.new { display: grid; gap: 0.5rem; margin: 1.5rem 0 2rem; }
+    input, textarea, button {
+      font: inherit; padding: 0.5rem 0.6rem; border-radius: 6px;
+      border: 1px solid rgba(128,128,128,0.4); background: transparent; color: inherit;
+    }
+    button { cursor: pointer; }
+    form.new button { justify-self: start; padding-inline: 1.2rem; }
+    article {
+      border: 1px solid rgba(128,128,128,0.3); border-radius: 8px;
+      padding: 0.8rem 1rem; margin-bottom: 0.8rem;
+    }
+    article header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+    article h2 { font-size: 1.05rem; margin: 0; }
+    article p { white-space: pre-wrap; margin: 0.5rem 0 0; }
+    .del { border: none; background: none; opacity: 0.5; }
+    .del:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <h1>Заметки</h1>
+  <p class="muted">notes v{{ version }}</p>
+
+  <form class="new" method="post" action="/notes">
+    <input type="text" name="title" placeholder="Заголовок" maxlength="200" required autofocus>
+    <textarea name="body" placeholder="Текст заметки" rows="3"></textarea>
+    <button type="submit">Добавить</button>
+  </form>
+
+  {% if not notes %}
+    <p class="muted">Пока пусто. Добавьте первую заметку.</p>
+  {% endif %}
+
+  {% for note in notes %}
+    <article>
+      <header>
+        <h2>{{ note.title }}</h2>
+        <form method="post" action="/notes/{{ note.id }}/delete">
+          <button class="del" type="submit" title="Удалить">&times;</button>
+        </form>
+      </header>
+      <p class="muted">{{ note.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+      {% if note.body %}<p>{{ note.body }}</p>{% endif %}
+    </article>
+  {% endfor %}
+</body>
+</html>
