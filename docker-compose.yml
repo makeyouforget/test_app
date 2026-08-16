@@ -1,0 +1,54 @@
+name: notes
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: notes-db
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks: [notes_net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    # ports:
+    #   - "5432:5432"
+
+  app:
+    build: .
+    image: notes:latest
+    container_name: notes-app
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      DB_WAIT_TIMEOUT: "60"
+      DB_WAIT_INTERVAL: "2"
+      DB_CONNECT_TIMEOUT: "5"
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    networks: [notes_net]
+    depends_on:
+      db:
+        condition: service_healthy
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "python", "/app/scripts/healthcheck.py"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  db_data:
+
+networks:
+  notes_net:
+    driver: bridge

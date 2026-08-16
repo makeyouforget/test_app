@@ -1,0 +1,22 @@
+# Не тащим в build-контекст (а значит и в образ) лишнее и секретное.
+.git
+.github
+.gitignore
+.venv
+venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*$py.class
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+LICENSE
